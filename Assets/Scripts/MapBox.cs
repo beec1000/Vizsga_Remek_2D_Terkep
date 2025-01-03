@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.Networking;
 using System.Xml;
 using System;
+using System.Globalization;
 
 public class Mapbox : MonoBehaviour
 {
@@ -34,7 +35,6 @@ public class Mapbox : MonoBehaviour
     private style mapStyleLast = style.Streets;
     private resolution mapResolutionLast = resolution.low;
 
-    // Start is called before the first frame update
     void Start()
     {
         StartCoroutine(GetMapbox());
@@ -43,7 +43,6 @@ public class Mapbox : MonoBehaviour
         mapHeight = (int)Math.Round(rect.height);
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (updateMap && (accessTokenLast != accessToken || !Mathf.Approximately(centerLatitudeLast, centerLatitude) || !Mathf.Approximately(centerLongitudeLast, centerLongitude) || zoomLast != zoom || bearingLast != bearing || mapStyleLast != mapStyle || mapResolutionLast != mapResolution))
@@ -59,15 +58,18 @@ public class Mapbox : MonoBehaviour
 
     IEnumerator GetMapbox()
     {
-        //url = "https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/19.2892,48.0716,12,0/500x300?access_token=" + accessToken;
-        //url = "https://api.mapbox.com/styles/v1/mapbox/" + styleStr[(int)mapStyle] + "/static/" + centerLongitude + "," + centerLatitude + "," + zoom + "," + bearing + "/" + mapWidth + "x" + mapHeight + "?" + "access_token=" + accessToken;
-        url = "https://api.mapbox.com/styles/v1/mapbox/" + styleStr[(int)mapStyle] + "/static/" + "19.2892" + "," + "48.0716" + "," + zoom + "," + bearing + " /" + mapWidth + "x" + mapHeight + "?" + "access_token=" + accessToken;
+        url = "https://api.mapbox.com/styles/v1/mapbox/" + styleStr[(int)mapStyle] + "/static/" + centerLongitude.ToString("F6", CultureInfo.InvariantCulture) + "," + centerLatitude.ToString("F6", CultureInfo.InvariantCulture) + "," + zoom + "," + bearing + " /" + mapWidth + "x" + mapHeight + "?" + "access_token=" + accessToken;
         mapIsLoading = true;
         UnityWebRequest www = UnityWebRequestTexture.GetTexture(url);
         yield return www.SendWebRequest();
         if (www.result != UnityWebRequest.Result.Success)
         {
             Debug.Log("WWW ERROR: " + www.error);
+            //Debug.Log("Generated URL: " + url);
+            //Debug.Log("Longitude: " + centerLongitude + ", Latitude: " + centerLatitude);
+            //Debug.Log("Zoom: " + zoom + ", Bearing: " + bearing);
+            //Debug.Log("Style: " + styleStr[(int)mapStyle] + ", Resolution: " + mapResolution);
+
         }
         else
         {
